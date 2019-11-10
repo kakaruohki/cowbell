@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'line/bot'
+require 'pry'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
@@ -25,6 +26,7 @@ post '/callback' do
   end
 
   events = client.parse_events_from(body)
+  binding.pry
   events.each { |event|
     case event
     when Line::Bot::Event::Message
@@ -32,7 +34,7 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         message = {
           type: 'text',
-          text: "あざす"
+          text: event.message['text']
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
