@@ -3,7 +3,7 @@ require 'line/bot'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
-CHANNEL_TOKEN = '331XWRc2PW4MRcbavb3gKdgblvfKOcb8t01U87I71RkP2iYqDoWPN1I0LTgvvvH7NA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBISWwrvmWRdo38mLcrD7gczmauW4otsntecTjZX5m87gdB04t89/1O/w1cDnyilFU='
+CHANNEL_TOKEN = 'TXUYq0uq0EAg07+Qq3knUQysShrYG64qMEvtNPClwV266NreGO+JbtW8dvYx8wFNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBle7pdF0mPwmgTShkjnCsmFUfUc1rzMzlsfSf3zYkYewdB04t89/1O/w1cDnyilFU='
 
 get '/' do
   "Hello world"
