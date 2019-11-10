@@ -1,6 +1,5 @@
 require 'sinatra'
 require 'line/bot'
-require 'pry'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
@@ -12,8 +11,9 @@ end
 
 def client
   @client ||= Line::Bot::Client.new { |config|
-    config.channel_secret = ENV["LINE_CHANNEL_SECRET"]
-    config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
+    config.channel_id     = CHANNEL_ID
+    config.channel_secret = CHANNEL_SECRET
+    config.channel_token  = CHANNEL_TOKEN
   }
 end
 
@@ -33,9 +33,7 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         message = {
           type: 'text',
-          #text: 'カウベル'
-          text: event.message['text']
-
+          text: event.message['text'] # オウム返し
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
@@ -46,5 +44,6 @@ post '/callback' do
     end
   }
 
+  # Don't forget to return a successful response
   "OK"
 end
