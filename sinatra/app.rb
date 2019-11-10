@@ -4,7 +4,7 @@ require 'pry'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
-CHANNEL_TOKEN = 'TXUYq0uq0EAg07+Qq3knUQysShrYG64qMEvtNPClwV266NreGO+JbtW8dvYx8wFNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBle7pdF0mPwmgTShkjnCsmFUfUc1rzMzlsfSf3zYkYewdB04t89/1O/w1cDnyilFU='
+CHANNEL_TOKEN = 'mJuXM/n6srAPwychtxHuXDMYkKSsdQEL9whgoln+0RJZBAAScrOn0nw6BF1lMiCINA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUCOqtUEYc6rCxWf8lRcT2GMHahPd7A1jVkknlZftXvxsQdB04t89/1O/w1cDnyilFU='
 
 get '/' do
   "Hello world"
@@ -33,7 +33,9 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         message = {
           type: 'text',
-          text: event.message['text']
+          text: 'カウベル'
+          #text: event.message['text']
+
         }
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
