@@ -26,7 +26,6 @@ post '/callback' do
   end
 
   events = client.parse_events_from(body)
-  binding.pry
   events.each { |event|
     case event
     when Line::Bot::Event::Message
