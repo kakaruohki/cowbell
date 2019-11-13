@@ -17,9 +17,19 @@ require 'time'
 #require 'aws-sdk'
 require 'optparse'
 require 'pry'
+require 'sinatra'
+require 'line/bot'
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDOUT)
+#ActiveRecord::Base.establish_connection(
+#  adapter: 'mysql2',
+#  host: 'localhost',
+#  username: 'root',
+#  password: '',
+#  database: 'cowbell',
+#)
+
 ActiveRecord::Base.establish_connection(
   adapter: 'mysql2',
   host: 'localhost',

@@ -1,9 +1,9 @@
-require 'sinatra'
-require 'line/bot'
+require_relative '../common'
+require_relative '../get_affiliate'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
-CHANNEL_TOKEN = 'mJuXM/n6srAPwychtxHuXDMYkKSsdQEL9whgoln+0RJZBAAScrOn0nw6BF1lMiCINA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUCOqtUEYc6rCxWf8lRcT2GMHahPd7A1jVkknlZftXvxsQdB04t89/1O/w1cDnyilFU='
+CHANNEL_TOKEN = 'ten3h0WRpjVhhEZV9FdolF3LiyIR69ouWzxOm33EQIfnB9fqf+g7pepieZ+vBWgVNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBIcYqDc3sffjQe/mUalpWzm7tPLaTI4uXOJWUFlPqAVQdB04t89/1O/w1cDnyilFU='
 
 get '/' do
   "Hello world"
@@ -15,6 +15,16 @@ def client
     config.channel_secret = CHANNEL_SECRET
     config.channel_token  = CHANNEL_TOKEN
   }
+end
+
+def get_userid
+  body = request.body.read
+  events = client.parse_events_from(body)
+  events.each { |event|
+    userId = event['source']['userId']  #userId取得
+    p "UserID: #{userId}" # UserIdを確認
+  }
+  return userId
 end
 
 post '/callback' do
@@ -34,8 +44,16 @@ post '/callback' do
         message = {
           type: 'text',
           #text: event.message['text'] # オウム返し
-          text: 'カウベル！'
+          text: event['source']['userId']
+          #text: '登録しました！値下がり次第お伝えします。'
         }
+
+        #item_code = event.message['text']
+        #user_id = event['source']['userId']
+        #affiliate_url = Share.get_affiliate_url(item_code)
+        #detail_hash = Share.parse_detail(item_code)
+        #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
+
         client.reply_message(event['replyToken'], message)
       when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
         response = client.get_message_content(event.message['id'])
