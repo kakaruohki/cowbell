@@ -92,13 +92,40 @@ class Share < SeleniumHelper
       present_price = normal_price
       present_price = sale_price unless sale_price.blank?
     end
-    alert(user_id) if present_price.to_i < selling_price
+    post(user_id) if present_price.to_i < selling_price
   end
 
-  def alert(user_id)
-    #通知
-    Users
+  #def alert(user_id)
+  #  #通知
+  #  Users
+  #end
 
+  def post(user_id, affiliate_url)
+    uri = URI.parse("https://api.line.me/v2/bot/message/push")
+    request = Net::HTTP::Post.new(uri)
+    request.content_type = "application/json"
+    request["Authorization"] = "Bearer {ten3h0WRpjVhhEZV9FdolF3LiyIR69ouWzxOm33EQIfnB9fqf+g7pepieZ+vBWgVNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBIcYqDc3sffjQe/mUalpWzm7tPLaTI4uXOJWUFlPqAVQdB04t89/1O/w1cDnyilFU=}"
+    request.body = JSON.dump({
+      "to" => user_id,
+      "messages" => [
+        {
+          "type" => "text",
+          "text" => "値下がりしました！"
+        },
+        {
+          "type" => "text",
+          "text" => affiliate_url
+        }
+      ]
+    })
+
+    req_options = {
+      use_ssl: uri.scheme == "https",
+    }
+
+    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+      http.request(request)
+    end
   end
 
   def record_existing?(class_name,item)
