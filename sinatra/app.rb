@@ -3,7 +3,7 @@ require_relative '../get_affiliate'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
-CHANNEL_TOKEN = 'AljQ0j6UkAG9kz7B5+68lbJacG79mC/c7HCsp318dWWD2Z/Wg9dBreGCBcmOYpHLNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUDMK5wn1bP7xK1QfkVubXJe5SGuWUNPZqspH96Zcc6hggdB04t89/1O/w1cDnyilFU='
+CHANNEL_TOKEN = 'TYYl2LSA3FpOZJsve0f69DoCqVigVg3P7Op9RsyvYSvsvk6Gw3Md6NacxlCCoyJsNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBttAKDdCapN75+OjICFdPbLN3If5ruKThHigcvgxg7eQdB04t89/1O/w1cDnyilFU='
 
 get '/' do
   "Hello world"
