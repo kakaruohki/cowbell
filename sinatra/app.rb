@@ -42,7 +42,7 @@ post '/callback' do
     when Line::Bot::Event::Message
       case event.type
       when Line::Bot::Event::MessageType::Text
-        item_code = event.message['text'].to_s
+        item_code = event.message['text']
         user_id = event['source']['userId']
         affiliate_url = Share.get_affiliate_url(item_code)
         detail_hash = Share.parse_detail(item_code)
