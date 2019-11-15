@@ -51,7 +51,8 @@ post '/callback' do
           type: 'text',
           #text: event.message['text'] # オウム返し
           #text: event['source']['userId']
-          text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
+          #text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
+          text: "#{affiliate_url}"
         }
 
         #item_code = event.message['text']
