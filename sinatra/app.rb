@@ -46,13 +46,13 @@ post '/callback' do
         user_id = event['source']['userId']
         affiliate_url = Share.new.get_affiliate_url(item_code)
         detail_hash = Share.new.parse_detail(item_code)
-        Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
+        #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
         message = {
           type: 'text',
           #text: event.message['text'] # オウム返し
           #text: event['source']['userId']
-          #text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
-          text: "#{affiliate_url}"
+          text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
+          #text: "#{affiliate_url}"
         }
 
         #item_code = event.message['text']
