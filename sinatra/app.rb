@@ -9,46 +9,6 @@ get '/' do
   "Hello world!"
 end
 
-def timeout_wait
-  return 300 if @timeout_wait.nil?
-  @timeout_wait
-end
-
-def sleep_designated
-  sleep @sleep_time
-end
-
-def query_click(css_selector)
-  javascript_statement = %Q{document.querySelector("#{css_selector}").click()}
-  @session.execute_script(javascript_statement)
-  sleep_designated
-  self
-end
-
-def switch_frame(*css_selectors)
-  @session.switch_to.window @session.window_handle
-  css_selectors.each do |css_selector|
-    iframe = @session.find_element(:css,css_selector)
-    @session.switch_to.frame(iframe)
-  end
-end
-
-def css_exist?(css_selector)
-  rescue_session = @session
-  rescue_session.manage.timeouts.implicit_wait = 5
-  rescue_session.find_elements(:css,css_selector).present?
-end
-
-def send_value(css_selector,value)
-  javascript_statement = %Q{document.querySelector("#{css_selector}").value = "#{value}"}
-  @session.execute_script(javascript_statement)
-end
-
-def html
-  @session.page_source
-end
-
-
 def client
   @client ||= Line::Bot::Client.new { |config|
     config.channel_id     = CHANNEL_ID
@@ -67,58 +27,6 @@ def get_userid
   return userId
 end
 
-def login
-  @session.navigate.to "https://www.qoo10.jp/gmkt.inc/Login/Login.aspx"
-  send_value("input[name=login_id]", "kakeru.ohki@gmail.com")
-  send_value("input[name=passwd]", "okkr1154")
-  query_click("#dv_member_login > span.login_btn_ara > a")
-  sleep_designated
-end
-
-def move_to_detail_page(item_code)
-  login
-  send_value("input.ip_text", item_code)
-  query_click("button.btn")
-  sleep_designated
-  query_click("a#btn_close") if css_exist?("a#btn_close")
-  query_click("div.sbj > a[data-type=goods_url]")
-  sleep_designated
-end
-
-def get_affiliate_url(item_code)
-  move_to_detail_page(item_code)
-  @session.switch_to.window(@session.window_handles.last)
-  query_click("#div_Default_Image > div.fctn_area > div.fctn > ul > li.bul_share > a")
-  sleep_designated
-  @session.switch_to.window(@session.window_handles.last)
-  sleep 3
-  charset = nil
-  doc = Nokogiri::HTML.parse(html, nil, charset)
-  affiliate_url = doc.css("#lnk_url").text
-  @session.quit
-  return affiliate_url
-end
-
-def parse_detail(item_code)
-  move_to_detail_page(item_code)
-  @session.switch_to.window(@session.window_handles.last)
-  query_click("a#btn_close") if css_exist?("a#btn_close")
-  charset = nil
-  doc = Nokogiri::HTML.parse(html, nil, charset)
-  item_name = doc.css("h2#goods_name").text
-  #item_code = doc.css("div.code").text.match(/\w+/)[0]
-  item_url = @session.current_url
-  reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
-  normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
-  sale_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|\W|,/,"")
-  @session.quit
-  selling_price = normal_price
-  selling_price = sale_price unless sale_price.blank?
-  #return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price}
-  return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price, "item_url" => item_url}
-end
-
-
 post '/callback' do
   body = request.body.read
 
@@ -135,16 +43,16 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         item_code = event.message['text']
         user_id = event['source']['userId']
-        #affiliate_url = Share.new.get_affiliate_url(item_code)
-        #detail_hash = Share.new.parse_detail(item_code)
-        affiliate_url = get_affiliate_url(item_code)
-        detail_hash = parse_detail(item_code)
+        affiliate_url = Share.new.get_affiliate_url(item_code)
+        detail_hash = Share.new.parse_detail(item_code)
+        #affiliate_url = get_affiliate_url(item_code)
+        #detail_hash = parse_detail(item_code)
         #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
         message = {
           type: 'text',
-          text: event.message['text'] # オウム返し
+          #text: event.message['text'] # オウム返し
           #text: event['source']['userId']
-          #text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
+          text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
           #text: "#{affiliate_url}"
         }
 
