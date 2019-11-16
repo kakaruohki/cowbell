@@ -6,7 +6,47 @@ CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
 CHANNEL_TOKEN = 'NRzTrAgRUl0a6mmkOCvpPRrCKxS5B/y4ACrPZaHtTCSrzyVVaebWZr857fd0Frx5NA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBO5gHnXUwDFzCtDaTZxtx7Y5CMXuWZzzKEcG8RpzsUaQdB04t89/1O/w1cDnyilFU='
 
 get '/' do
-  "Hello world"
+  "Hello world!"
+end
+
+def timeout_wait
+  return 300 if @timeout_wait.nil?
+  @timeout_wait
+end
+
+def sleep_designated
+  sleep @sleep_time
+end
+
+def query_click(css_selector)
+  javascript_statement = %Q{document.querySelector("#{css_selector}").click()}
+  @session.execute_script(javascript_statement)
+  sleep_designated
+  self
+end
+
+def switch_frame(*css_selectors)
+  @session.switch_to.window @session.window_handle
+  css_selectors.each do |css_selector|
+    iframe = @session.find_element(:css,css_selector)
+    @session.switch_to.frame(iframe)
+  end
+end
+
+def css_exist?(css_selector)
+  rescue_session = @session
+  rescue_session.manage.timeouts.implicit_wait = 5
+  rescue_session.find_elements(:css,css_selector).present?
+end
+
+def send_value(css_selector,value)
+  javascript_statement = %Q{document.querySelector("#{css_selector}").value = "#{value}"}
+  @session.execute_script(javascript_statement)
+end
+
+def html
+  @session.page_source
+end
 end
 
 def client
