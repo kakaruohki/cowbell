@@ -47,7 +47,7 @@ end
 def html
   @session.page_source
 end
-end
+
 
 def client
   @client ||= Line::Bot::Client.new { |config|
