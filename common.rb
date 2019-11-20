@@ -1,20 +1,3 @@
-require 'rubygems'
-require 'bundler'
-require 'nokogiri'
-require 'socket'
-require 'pp'
-require 'json'
-require 'uri'
-require 'active_record'
-require 'active_support'
-require 'active_support/core_ext'
-require 'open-uri'
-#require 'open_uri_redirections'
-require 'mechanize'
-require 'selenium-webdriver'
-require 'date'
-require 'time'
-#require 'aws-sdk'
 require 'optparse'
 require 'pry'
 require 'sinatra'
@@ -32,9 +15,9 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 ActiveRecord::Base.establish_connection(
   adapter: 'mysql2',
-  host: 'localhost',
+  host: 'cowbell2.cxzk5qiw2yej.us-east-2.rds.amazonaws.com',
   username: 'root',
-  password: '',
+  password: 'okkr1154',
   database: 'cowbell',
 )
 

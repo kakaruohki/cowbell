@@ -5,17 +5,23 @@ class SeleniumHelper
   def initialize(sleep_time: 1)
     @sleep_time = sleep_time
     # Selenium::WebDriver::Chrome.driver_path = "/mnt/c/chromedriver.exe"
-    ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36"
-    caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--headless","--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--user-agent=#{ua}", 'window-size=1280x800']})
-    #caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
+    ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--headless","--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--user-agent=#{ua}", 'window-size=1280x800']})
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--user-agent=#{ua}')
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-setuid-sandbox')
     client = Selenium::WebDriver::Remote::Http::Default.new
     client.read_timeout = timeout_wait
     client.open_timeout = timeout_wait
-    @session = Selenium::WebDriver.for :chrome, desired_capabilities: caps, http_client: client
+    @session = Selenium::WebDriver.for :chrome, options: options, http_client: client
     @session.manage.timeouts.implicit_wait = timeout_wait
   end
 
-  def timeout_wait
+def timeout_wait
     return 300 if @timeout_wait.nil?
     @timeout_wait
   end

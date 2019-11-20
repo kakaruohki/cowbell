@@ -5,6 +5,12 @@ CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
 CHANNEL_TOKEN = 'NRzTrAgRUl0a6mmkOCvpPRrCKxS5B/y4ACrPZaHtTCSrzyVVaebWZr857fd0Frx5NA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBO5gHnXUwDFzCtDaTZxtx7Y5CMXuWZzzKEcG8RpzsUaQdB04t89/1O/w1cDnyilFU='
 
+helpers do
+  def html(text)
+    Rack::Utils.escape_html(text)
+  end
+end
+
 get '/' do
   "Hello world!"
 end
