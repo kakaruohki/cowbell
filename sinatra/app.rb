@@ -22,6 +22,69 @@ get '/' do
   "Hello world!"
 end
 
+class SeleniumHelper
+  attr_accessor :session
+  attr_accessor :sleep_time
+  attr_accessor :timeout_wait
+  def initialize(sleep_time: 1)
+    @sleep_time = sleep_time
+    # Selenium::WebDriver::Chrome.driver_path = "/mnt/c/chromedriver.exe"
+    ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--headless","--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--user-agent=#{ua}", 'window-size=1280x800']})
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--user-agent=#{ua}')
+    #options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-setuid-sandbox')
+    client = Selenium::WebDriver::Remote::Http::Default.new
+    client.read_timeout = timeout_wait
+    client.open_timeout = timeout_wait
+    @session = Selenium::WebDriver.for :chrome, options: options, http_client: client
+    @session.manage.timeouts.implicit_wait = timeout_wait
+  end
+
+def timeout_wait
+    return 300 if @timeout_wait.nil?
+    @timeout_wait
+  end
+
+  def sleep_designated
+    sleep @sleep_time
+  end
+
+  def query_click(css_selector)
+    javascript_statement = %Q{document.querySelector("#{css_selector}").click()}
+    @session.execute_script(javascript_statement)
+    sleep_designated
+    self
+  end
+
+  def switch_frame(*css_selectors)
+    @session.switch_to.window @session.window_handle
+    css_selectors.each do |css_selector|
+      iframe = @session.find_element(:css,css_selector)
+      @session.switch_to.frame(iframe)
+    end
+  end
+
+  def css_exist?(css_selector)
+    rescue_session = @session
+    rescue_session.manage.timeouts.implicit_wait = 5
+    rescue_session.find_elements(:css,css_selector).present?
+  end
+
+  def send_value(css_selector,value)
+    javascript_statement = %Q{document.querySelector("#{css_selector}").value = "#{value}"}
+    @session.execute_script(javascript_statement)
+  end
+
+  def html
+    @session.page_source
+  end
+end
+
 def client
   @client ||= Line::Bot::Client.new { |config|
     config.channel_id     = CHANNEL_ID
@@ -39,7 +102,7 @@ def get_userid
   }
   return userId
 end
-
+class Share < SeleniumHelper
 def move_to_detail_page(item_code)
   login_cookie
   #@session.navigate.to "https://www.qoo10.jp/"
@@ -122,7 +185,7 @@ def login_cookie
   @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
   #get_affiliate_url("620883278")
 end
-
+end
 #require_relative '../get_affiliate'
 
 
@@ -142,10 +205,10 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         item_code = event.message['text']
         user_id = event['source']['userId']
-        #affiliate_url = Share.new.get_affiliate_url(item_code)
-        #detail_hash = Share.new.parse_detail(item_code)
-        affiliate_url = get_affiliate_url(item_code)
-        detail_hash = parse_detail(item_code)
+        affiliate_url = Share.new.get_affiliate_url(item_code)
+        detail_hash = Share.new.parse_detail(item_code)
+        #affiliate_url = get_affiliate_url(item_code)
+        #detail_hash = parse_detail(item_code)
         #affiliate_url = get_affiliate_url(item_code)
         #detail_hash = parse_detail(item_code)
         #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
