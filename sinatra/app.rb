@@ -46,7 +46,7 @@ end
     #@session.manage.timeouts.implicit_wait = timeout_wait
   #end
 
-#def timeout_wait
+#def timeout_wait 
 #    return 300 if @timeout_wait.nil?
 #    @timeout_wait
 #  end
