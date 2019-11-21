@@ -202,8 +202,8 @@ item_code = "620883278"
 #Share.new.parse_detail(item_code)
 #Share.new.check_price(item_code)
 #Share.new.check_price
-#affiliate_url = Share.new.get_affiliate_url(item_code)
+#p affiliate_url = Share.new.get_affiliate_url(item_code)
 #p 1
-#detail_hash = Share.new.parse_detail(item_code)
+#p detail_hash = Share.new.parse_detail(item_code)
 #p 2
 #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code)
