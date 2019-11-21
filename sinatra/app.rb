@@ -205,8 +205,8 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         item_code = event.message['text']
         user_id = event['source']['userId']
-        affiliate_url = Share.new.get_affiliate_url(item_code)
-        detail_hash = Share.new.parse_detail(item_code)
+        #affiliate_url = Share.new.get_affiliate_url(item_code)
+        #detail_hash = Share.new.parse_detail(item_code)
         #affiliate_url = get_affiliate_url(item_code)
         #detail_hash = parse_detail(item_code)
         #affiliate_url = get_affiliate_url(item_code)
@@ -216,7 +216,7 @@ post '/callback' do
           type: 'text',
           #text: event.message['text'] # オウム返し
           #text: event['source']['userId']
-          text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
+          #text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
           #text: "#{affiliate_url}"
         }
 
