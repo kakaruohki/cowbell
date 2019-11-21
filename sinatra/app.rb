@@ -22,7 +22,7 @@ get '/' do
   "Hello world!"
 end
 
-class SeleniumHelper
+#class SeleniumHelper
   attr_accessor :session
   attr_accessor :sleep_time
   attr_accessor :timeout_wait
@@ -83,7 +83,7 @@ def timeout_wait
   def html
     @session.page_source
   end
-end
+#end
 
 def client
   @client ||= Line::Bot::Client.new { |config|
@@ -102,7 +102,7 @@ def get_userid
   }
   return userId
 end
-class Share < SeleniumHelper
+#class Share < SeleniumHelper
 def move_to_detail_page(item_code)
   login_cookie
   #@session.navigate.to "https://www.qoo10.jp/"
@@ -185,7 +185,7 @@ def login_cookie
   @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
   #get_affiliate_url("620883278")
 end
-end
+#end
 #require_relative '../get_affiliate'
 
 
@@ -207,14 +207,14 @@ post '/callback' do
         user_id = event['source']['userId']
         #affiliate_url = Share.new.get_affiliate_url(item_code)
         #detail_hash = Share.new.parse_detail(item_code)
-        #affiliate_url = get_affiliate_url(item_code)
-        #detail_hash = parse_detail(item_code)
+        affiliate_url = get_affiliate_url(item_code)
+        detail_hash = parse_detail(item_code)
         #affiliate_url = get_affiliate_url(item_code)
         #detail_hash = parse_detail(item_code)
         #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
         message = {
           type: 'text',
-          #text: event.message['text'] # オウム返し
+          text: event.message['text'] # オウム返し
           #text: event['source']['userId']
           #text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
           #text: "#{affiliate_url}"
