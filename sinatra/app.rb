@@ -7,7 +7,7 @@ require 'line/bot'
 require 'active_record'
 require 'logger'
 require 'bundler'
-require 'selenium-webdriver'
+require 'selenium-webdriver' 
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
