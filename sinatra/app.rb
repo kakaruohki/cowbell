@@ -22,12 +22,11 @@ get '/' do
   "Hello world!"
 end
 
-#class SeleniumHelper
-  #attr_accessor :session
-  #attr_accessor :sleep_time
-  #attr_accessor :timeout_wait
-  #def initialize(sleep_time: 1)
-  sleep_time = 1
+class SeleniumHelper
+  attr_accessor :session
+  attr_accessor :sleep_time
+  attr_accessor :timeout_wait
+  def initialize(sleep_time: 1)
     @sleep_time = sleep_time
     # Selenium::WebDriver::Chrome.driver_path = "/mnt/c/chromedriver.exe"
     ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
@@ -40,16 +39,16 @@ end
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-setuid-sandbox')
     client = Selenium::WebDriver::Remote::Http::Default.new
-    #client.read_timeout = timeout_wait
-    #client.open_timeout = timeout_wait
-    @session = Selenium::WebDriver.for :chrome, options: options#, http_client: client
-    #@session.manage.timeouts.implicit_wait = timeout_wait
-  #end
+    client.read_timeout = timeout_wait
+    client.open_timeout = timeout_wait
+    @session = Selenium::WebDriver.for :chrome, options: options, http_client: client
+    @session.manage.timeouts.implicit_wait = timeout_wait
+  end
 
-#def timeout_wait 
-#    return 300 if @timeout_wait.nil?
-#    @timeout_wait
-#  end
+def timeout_wait
+    return 300 if @timeout_wait.nil?
+    @timeout_wait
+  end
 
   def sleep_designated
     sleep @sleep_time
@@ -84,7 +83,7 @@ end
   def html
     @session.page_source
   end
-#end
+end
 
 def client
   @client ||= Line::Bot::Client.new { |config|
@@ -103,7 +102,7 @@ def get_userid
   }
   return userId
 end
-#class Share < SeleniumHelper
+class Share < SeleniumHelper
 def move_to_detail_page(item_code)
   login_cookie
   #@session.navigate.to "https://www.qoo10.jp/"
@@ -186,7 +185,7 @@ def login_cookie
   @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
   #get_affiliate_url("620883278")
 end
-#end
+end
 #require_relative '../get_affiliate'
 
 
@@ -206,10 +205,10 @@ post '/callback' do
       when Line::Bot::Event::MessageType::Text
         item_code = event.message['text']
         user_id = event['source']['userId']
-        #affiliate_url = Share.new.get_affiliate_url(item_code)
-        #detail_hash = Share.new.parse_detail(item_code)
-        affiliate_url = get_affiliate_url(item_code)
-        detail_hash = parse_detail(item_code)
+        affiliate_url = Share.new.get_affiliate_url(item_code)
+        detail_hash = Share.new.parse_detail(item_code)
+        #affiliate_url = get_affiliate_url(item_code)
+        #detail_hash = parse_detail(item_code)
         #affiliate_url = get_affiliate_url(item_code)
         #detail_hash = parse_detail(item_code)
         #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
