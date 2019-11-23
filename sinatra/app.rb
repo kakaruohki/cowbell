@@ -38,7 +38,7 @@ class SeleniumHelper
     #options.binary = ENV.fetch("GOOGLE_CHROME_SHIM")
     options.add_argument('headless')
     options.add_argument('disable-gpu')
-    @session = Selenium::WebDriver.for :chrome, options: options
+    #@session = Selenium::WebDriver.for :chrome, options: options
     #options = Selenium::WebDriver::Chrome::Options.new
     #options.add_argument('--user-agent=#{ua}')
     #options.add_argument('--headless')
