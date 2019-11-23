@@ -35,7 +35,7 @@ class SeleniumHelper
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--headless","--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--user-agent=#{ua}", 'window-size=1280x800']})
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
     options = Selenium::WebDriver::Chrome::Options.new
-    options.binary = ENV.fetch("GOOGLE_CHROME_SHIM")
+    #options.binary = ENV.fetch("GOOGLE_CHROME_SHIM")
     options.add_argument('headless')
     options.add_argument('disable-gpu')
     @session = Selenium::WebDriver.for :chrome, options: options
