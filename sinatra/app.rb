@@ -8,7 +8,7 @@ require 'active_record'
 require 'logger'
 require 'bundler'
 require 'selenium-webdriver'
-require 'nokogiri' 
+require 'nokogiri'
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
@@ -35,11 +35,16 @@ class SeleniumHelper
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--headless","--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--user-agent=#{ua}", 'window-size=1280x800']})
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
     options = Selenium::WebDriver::Chrome::Options.new
-    options.add_argument('--user-agent=#{ua}')
+    options.binary = ENV.fetch(“GOOGLE_CHROME_SHIM”)
+    options.add_argument('headless')
+    options.add_argument('disable-gpu')
+    @session = Selenium::WebDriver.for :chrome, options: options
+    #options = Selenium::WebDriver::Chrome::Options.new
+    #options.add_argument('--user-agent=#{ua}')
     #options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-setuid-sandbox')
+    #options.add_argument('--disable-gpu')
+    #options.add_argument('--no-sandbox')
+    #options.add_argument('--disable-setuid-sandbox')
     client = Selenium::WebDriver::Remote::Http::Default.new
     client.read_timeout = timeout_wait
     client.open_timeout = timeout_wait
