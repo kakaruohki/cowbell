@@ -1,7 +1,7 @@
 class SeleniumHelper
   attr_accessor :session
   attr_accessor :sleep_time
-  attr_accessor :timeout_wait
+  #attr_accessor :timeout_wait
   def initialize(sleep_time: 1)
     @sleep_time = sleep_time
     # Selenium::WebDriver::Chrome.driver_path = "/mnt/c/chromedriver.exe"
@@ -15,10 +15,10 @@ class SeleniumHelper
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-setuid-sandbox')
     client = Selenium::WebDriver::Remote::Http::Default.new
-    client.read_timeout = timeout_wait
-    client.open_timeout = timeout_wait
+  #  client.read_timeout = timeout_wait
+  #  client.open_timeout = timeout_wait
     @session = Selenium::WebDriver.for :chrome, options: options, http_client: client
-    @session.manage.timeouts.implicit_wait = timeout_wait
+  #  @session.manage.timeouts.implicit_wait = timeout_wait
   end
 
 def timeout_wait
