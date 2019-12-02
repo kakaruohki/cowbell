@@ -88,22 +88,6 @@ class Share < SeleniumHelper
     return {"site_name" => "Qoo10", "item_name" => item_name, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
   end
 
-  =begin
-
-    def check_price(item_code)
-      move_to_detail_page(item_code)
-      @session.switch_to.window(@session.window_handles.last)
-      charset = nil
-      doc = Nokogiri::HTML.parse(html, nil, charset)
-      item_name = doc.css("h2#goods_name").text
-      present_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
-      present_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|円|,/,"") unless doc.css("dl.detailsArea.q_dcprice > dd").blank?
-      #price = Items.select(:price).where(item_code: item_code)
-      item_hash = {"item_name" => item_name, "item_code" => item_code, "sale_price" => present_price}
-      alert unless record_existing?(Items, item_hash)
-    end
-
-  =end
   def check_price
     #present_price = nil
     #selling_price = nil
@@ -241,4 +225,3 @@ item_code = "あ"
 #detail_hash = Share.new.parse_detail(item_code)
 #p 2
 #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code)
-                                                                                                                                                                245,5         Bot
