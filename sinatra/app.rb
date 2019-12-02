@@ -130,4 +130,3 @@ post '/callback' do
     reply(user_id, "error")
   end
 end
-                                                                                                                                                                  132,1         Bot
