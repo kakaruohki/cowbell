@@ -1,18 +1,19 @@
-require_relative '../common'
-require_relative '../get_affiliate'
-require 'optparse'
+#require_relative '../common'
+#require_relative '../get_affiliate'
+#require_relative '../selenium_helper'
 require 'pry'
 require 'sinatra'
 require 'line/bot'
 require 'active_record'
 require 'logger'
-require 'bundler'
-require 'selenium-webdriver'
-require 'nokogiri'
+require 'json'
+
+#set :environment, :production
+#set :port, 80
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
-CHANNEL_TOKEN = 'ZvLoz3tuVCdrCf3suzql1FlGgFqoBP3DhF1Rv3SdPb6DdH4aINJx21s+tDrX1edINA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUBUvvvinxQG2i5oTKp8vywai+SinXdCu1ljqRaYOAS0eQdB04t89/1O/w1cDnyilFU='
+CHANNEL_TOKEN = 'cvY4PoZB8WZL1YznqKwGQ/+/Bef7kUUlxMHxs9tkTjbFC9Fk++QhjMRWKSyApHQzNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUC3OFvOb3ws4YtvYrbE86s/g0YwW+pytU3xukr7QvosuAdB04t89/1O/w1cDnyilFU='
 
 helpers do
   def html(text)
@@ -20,9 +21,16 @@ helpers do
   end
 end
 
-get '/' do
-  "Hello world!"
+post '/' do
+  #text = params[:text]
+  #text1 = params[:text1]
+   "Hello world!"
+  #{text: text}.to_json
+  #json = JSON.parse(request.body.read)
+  #body = request.body.read
+  #text + text1
 end
+
 
 
 def client
@@ -33,55 +41,93 @@ def client
   }
 end
 
-#require_relative '../get_affiliate'
+def get_userid
+  body = request.body.read
+  events = client.parse_events_from(body)
+  events.each { |event|
+    userId = event['source']['userId']  #userId取得
+    p "UserID: #{userId}" # UserIdを確認
+  }
+  return userId
+end
+
+require_relative '../get_affiliate'
+
+def reply(user_id, status)
+  uri = URI.parse("https://api.line.me/v2/bot/message/push")
+  request = Net::HTTP::Post.new(uri)
+  request.content_type = "application/json"
+  request["Authorization"] = "Bearer {cvY4PoZB8WZL1YznqKwGQ/+/Bef7kUUlxMHxs9tkTjbFC9Fk++QhjMRWKSyApHQzNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUC3OFvOb3ws4YtvYrbE86s/g0YwW+pytU3xukr7QvosuAdB04t89/1O/w1cDnyilFU=}"
+  if status == "success"
+  request.body = JSON.dump({
+    "to" => user_id,
+    "messages" => [
+      {
+        "type" => "text",
+        "text" => "登録しました！値下がり次第お伝えします。"
+      }
+    ]
+  })
+  else
+    request.body = JSON.dump({
+    "to" => user_id,
+    "messages" => [
+      {
+        "type" => "text",
+        "text" => "登録できませんでした。商品番号をもう一度お確かめください。"
+      }
+    ]
+  })
+
+  end
+
+  req_options = {
+    use_ssl: uri.scheme == "https",
+  }
+
+  response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+    http.request(request)
+  end
+end
+
+def error(user_id)
+  uri = URI.parse("https://api.line.me/v2/bot/message/push")
+  request = Net::HTTP::Post.new(uri)
+  request.content_type = "application/json"
+  request["Authorization"] = "Bearer {cvY4PoZB8WZL1YznqKwGQ/+/Bef7kUUlxMHxs9tkTjbFC9Fk++QhjMRWKSyApHQzNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUC3OFvOb3ws4YtvYrbE86s/g0YwW+pytU3xukr7QvosuAdB04t89/1O/w1cDnyilFU=}"
+  request.body = JSON.dump({
+    "to" => user_id,
+    "messages" => [
+      {
+        "type" => "text",
+        "text" => "登録できませんでした。商品番号をもう一度お確かめください。"
+      }
+    ]
+  })
+
+  req_options = {
+    use_ssl: uri.scheme == "https",
+  }
+
+  response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+    http.request(request)
+  end
+end
 
 
 post '/callback' do
-  body = request.body.read
-
-  signature = request.env['HTTP_X_LINE_SIGNATURE']
-  unless client.validate_signature(body, signature)
-    error 400 do 'Bad Request' end
+  item_code  = params[:item_code]
+  user_id = params[:user_id]
+  reply_token = params[:reply_token]
+  #user_id = event['source']['userId']
+  #affiliate_url = Share.new.get_affiliate_url(item_code)
+  #detail_hash = Share.new.parse_detail(item_code)
+  begin
+    detail_hash = Share.new.parse_detail(item_code)
+    Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: detail_hash["affiliate_url"], item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id, status: 0)
+    reply(user_id, "success")
+  rescue
+    reply(user_id, "error")
   end
-
-  events = client.parse_events_from(body)
-  events.each { |event|
-    case event
-    when Line::Bot::Event::Message
-      case event.type
-      when Line::Bot::Event::MessageType::Text
-        item_code = event.message['text']
-        user_id = event['source']['userId']
-        affiliate_url = Share.new.get_affiliate_url(item_code)
-        detail_hash = Share.new.parse_detail(item_code)
-        #affiliate_url = get_affiliate_url(item_code)
-        #detail_hash = parse_detail(item_code)
-        #affiliate_url = get_affiliate_url(item_code)
-        #detail_hash = parse_detail(item_code)
-        #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
-        message = {
-          type: 'text',
-          text: event.message['text'] # オウム返し
-          #text: event['source']['userId']
-          #text: "#{detail_hash["item_name"]}を登録しました！値下がり次第お伝えします。"
-          #text: "#{affiliate_url}"
-        }
-
-        #item_code = event.message['text']
-        #user_id = event['source']['userId']
-        #affiliate_url = Share.get_affiliate_url(item_code)
-        #detail_hash = Share.parse_detail(item_code)
-        #Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id)
-
-        client.reply_message(event['replyToken'], message)
-      when Line::Bot::Event::MessageType::Image, Line::Bot::Event::MessageType::Video
-        response = client.get_message_content(event.message['id'])
-        tf = Tempfile.open("content")
-        tf.write(response.body)
-      end
-    end
-  }
-
-  # Don't forget to return a successful response
-  "OK"
 end
+                                                                                                                                                                  132,1         Bot

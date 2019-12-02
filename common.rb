@@ -3,9 +3,8 @@ require 'pry'
 require 'sinatra'
 require 'line/bot'
 require 'active_record'
-require 'logger'
-require 'selenium-webdriver'
 require 'nokogiri'
+require 'selenium-webdriver'
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDOUT)

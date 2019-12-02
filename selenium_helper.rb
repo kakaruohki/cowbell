@@ -10,7 +10,7 @@ class SeleniumHelper
     # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
     options = Selenium::WebDriver::Chrome::Options.new
     options.add_argument('--user-agent=#{ua}')
-    #options.add_argument('--headless')
+    options.add_argument('--headless')
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-setuid-sandbox')
@@ -21,7 +21,7 @@ class SeleniumHelper
     @session.manage.timeouts.implicit_wait = timeout_wait
   end
 
-def timeout_wait
+  def timeout_wait
     return 300 if @timeout_wait.nil?
     @timeout_wait
   end
@@ -50,7 +50,6 @@ def timeout_wait
     rescue_session.manage.timeouts.implicit_wait = 5
     rescue_session.find_elements(:css,css_selector).present?
   end
-
   def send_value(css_selector,value)
     javascript_statement = %Q{document.querySelector("#{css_selector}").value = "#{value}"}
     @session.execute_script(javascript_statement)
