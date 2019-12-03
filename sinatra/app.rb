@@ -122,11 +122,15 @@ post '/callback' do
   #user_id = event['source']['userId']
   #affiliate_url = Share.new.get_affiliate_url(item_code)
   #detail_hash = Share.new.parse_detail(item_code)
-  begin
-    detail_hash = Share.new.parse_detail(item_code)
-    Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: detail_hash["affiliate_url"], item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id, status: 0)
-    reply(user_id, "success")
-  rescue
+  if item_code.match(/\D/)
     reply(user_id, "error")
+  else
+    begin
+      detail_hash = Share.new.parse_detail(item_code)
+      Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: detail_hash["affiliate_url"], item_code: item_code, selling_price: detail_hash["selling_price"], item_url: detail_hash["item_url"], user_id: user_id, status: 0)
+      reply(user_id, "success")
+    rescue
+      reply(user_id, "error")
+    end
   end
 end
