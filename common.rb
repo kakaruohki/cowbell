@@ -5,6 +5,7 @@ require 'line/bot'
 require 'active_record'
 require 'nokogiri'
 require 'selenium-webdriver'
+require 'rakuten_web_service'
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDOUT)
