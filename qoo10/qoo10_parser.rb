@@ -24,7 +24,7 @@ class Qoo10 < SeleniumHelper
     charset = nil
     doc = Nokogiri::HTML.parse(html, nil, charset)
     item_name = doc.css("h2#goods_name").text
-    #item_code = doc.css("div.code").text.match(/\w+/)[0]
+    item_code = doc.css("div.code").text.match(/\w+/)[0]
     #item_url = @session.current_url
     reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
     normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
@@ -42,7 +42,7 @@ class Qoo10 < SeleniumHelper
     affiliate_url = doc2.css("#lnk_url").text
     @session.quit
     #return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price}
-    return {"site_name" => "Qoo10", "itme_url" => item_url, "item_name" => item_name, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
+    return {"site_name" => "Qoo10", "itme_url" => item_url, "item_name" => item_name, "item_code" => item_code, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
   end
 
   def check_price
@@ -175,7 +175,7 @@ item_code = "あ"
 #pp Qoo10.new.check_price
 #pp Qoo10.new.get_affiliate_url(item_code)
 #pp Qoo10.new.login_cookie
-Qoo10.new.parse_detail(item_url)
+#Qoo10.new.parse_detail(item_url)
 #Qoo10.new.check_price(item_code)
 #Qoo10.new.check_price
 #affiliate_url = Qoo10.new.get_affiliate_url(item_code)

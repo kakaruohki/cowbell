@@ -25,7 +25,7 @@ class Rakuten < SeleniumHelper
     items = RakutenWebService::Ichiba::Item.search(:keyword => item_code)
     items.first(1).each do |item|
       #puts "#{item['itemName']}, #{item.price} yen"
-      detail_hash = {"site_name" => "rakuten", "item_url" => item_url, "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
+      detail_hash = {"site_name" => "rakuten", "item_url" => item_url, "item_code" => item_code, "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
     end
     detail_hash
   end
