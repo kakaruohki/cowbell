@@ -14,7 +14,7 @@ class Qoo10 < SeleniumHelper
 
   def parse_detail(item_url)
     if item_url.include?("Mobile")
-      item_code = item_url.match(/goodscode=\d*&/)[0].gsub(/\D/, "")
+      item_code = item_url.match(/goodscode=\d*/)[0].gsub(/\D/, "")
     else
       item_code = item_url.match(/\/\d{9}+/)[0].gsub(/\//, "")
     end
@@ -58,24 +58,28 @@ class Qoo10 < SeleniumHelper
       affiliate_url = item_hash["affiliate_url"]
       #@session.navigate.to item_url
       #binding.pry
-      @session.navigate.to item_url
-      sleep 1
-      doc = Nokogiri::HTML.parse(html, nil, nil)
-      #item_name = doc.css("h2#goods_name").text
-      #item_code = doc.css("div.code").text.match(/\w+/)[0]
-      #item_url = @session.current_url
-      reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
-      normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
-      #sale_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|\W|,/,"")
-      #sale_price = doc.css("#sp_max_dc_price").text.gsub(/\(.+\)|\s|\W|,/,"")
-      sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
-      sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
-      #@session.quit
-      sleep 1
-      present_price = normal_price
-      present_price = sale_price unless sale_price.blank?
-      Items.find_by(id: item_hash["id"]).update(status: 1) if present_price.to_i < selling_price
-      post(user_id, affiliate_url) if present_price.to_i < selling_price
+      begin
+        @session.navigate.to affiliate_url
+        sleep 1
+        doc = Nokogiri::HTML.parse(html, nil, nil)
+        #item_name = doc.css("h2#goods_name").text
+        #item_code = doc.css("div.code").text.match(/\w+/)[0]
+        #item_url = @session.current_url
+        reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
+        normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
+        #sale_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|\W|,/,"")
+        #sale_price = doc.css("#sp_max_dc_price").text.gsub(/\(.+\)|\s|\W|,/,"")
+        sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
+        sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
+        #@session.quit
+        sleep 1
+        present_price = normal_price
+        present_price = sale_price unless sale_price.blank?
+        Items.find_by(id: item_hash["id"]).update(status: 1) if present_price.to_i < selling_price
+        post(user_id, affiliate_url) if present_price.to_i < selling_price
+      rescue
+        next
+      end
     end
     #binding.pry
     #post(user_id, affiliate_url) if present_price.to_i < selling_price
