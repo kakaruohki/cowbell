@@ -112,11 +112,11 @@ end
 
 item_url = "https://item.rakuten.co.jp/adidas/ed7350/?iasid=07rpp_10096___ec-k3rbx0uy-8opr-2bc63514-6304-4705-894b-cdc415d8cad2"
 item_url = "https://item.rakuten.co.jp/sportszyuen/cq1962-l/"
-item_code = Rakuten.new.parse_item_code(item_url)
+#item_code = Rakuten.new.parse_item_code(item_url)
 #pp Rakuten.new.check_price
 #pp Rakuten.new.get_affiliate_url(item_code)
 #pp Rakuten.new.login_cookie
-pp Rakuten.new.parse_detail(item_code)
+#pp Rakuten.new.parse_detail(item_code)
 #Rakuten.new.check_price(item_code)
 #Rakuten.new.check_price
 #affiliate_url = Rakuten.new.get_affiliate_url(item_code)
