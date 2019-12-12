@@ -32,13 +32,14 @@ class Rakuten < SeleniumHelper
     return item_code
   end
 
-  def parse_detail(item_code)
+  def parse_detail(item_url)
     RakutenWebService.configure do |c|
       c.application_id = '1092763469644723753'
       c.affiliate_id = '19c4dd28.d9c707f9.19c4dd29.c92b5ba3'
     end
 
     #item_code = '8200106330'
+    item_code = parse_item_code(item_url)
     detail_hash = {}
     items = RakutenWebService::Ichiba::Item.search(:itemCode => item_code)
     items.first(1).each do |item|
