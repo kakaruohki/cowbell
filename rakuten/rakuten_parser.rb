@@ -3,29 +3,47 @@ require_relative "../selenium_helper"
 
 class Rakuten < SeleniumHelper
 
-  #def move_to_detail_page(item_code)
-  #  login_cookie
-  #  #@session.navigate.to "https://www.qoo10.jp/"
-  #  send_value("input.ip_text", item_code)
-  #  query_click("button.btn")
-  #  query_click("a#btn_close") if css_exist?("a#btn_close")
-  #  query_click("div.sbj > a[data-type=goods_url]")
-  #end
+  def initialize
+    @sleep_time = sleep_time
+    # Selenium::WebDriver::Chrome.driver_path = "/mnt/c/chromedriver.exe"
+    ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36"
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--headless","--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--user-agent=#{ua}", 'window-size=1280x800']})
+    # caps = Selenium::WebDriver::Remote::Capabilities.chrome("chromeOptions" => {args: ["--user-agent=#{ua}", "window-size=1280x800"]})
+    options = Selenium::WebDriver::Chrome::Options.new
+    options.add_argument('--user-agent=#{ua}')
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-setuid-sandbox')
+    options.add_argument('--proxy-server=http://1.0.135.245:8080')
+    client = Selenium::WebDriver::Remote::Http::Default.new
+    client.read_timeout = timeout_wait
+    client.open_timeout = timeout_wait
+    @session = Selenium::WebDriver.for :chrome, options: options, http_client: client
+    @session.manage.timeouts.implicit_wait = timeout_wait
+  end
 
-  def parse_detail(item_url)
+  def parse_item_code(item_url)
+    @session.navigate.to item_url
+    switch_frame("#grp15_ias")
+    sleep 1
+    doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
+    item_code = doc.css("body > form > input[name=itemid]:nth-child(8)").attribute('value').text
+    return item_code
+  end
+
+  def parse_detail(item_code)
     RakutenWebService.configure do |c|
       c.application_id = '1092763469644723753'
       c.affiliate_id = '19c4dd28.d9c707f9.19c4dd29.c92b5ba3'
     end
-    @session.navigate.to item_url
-    doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
-    item_code = doc.css("td > span.item_number").text
+
     #item_code = '8200106330'
     detail_hash = {}
-    items = RakutenWebService::Ichiba::Item.search(:keyword => item_code)
+    items = RakutenWebService::Ichiba::Item.search(:itemCode => item_code)
     items.first(1).each do |item|
       #puts "#{item['itemName']}, #{item.price} yen"
-      detail_hash = {"site_name" => "rakuten", "item_url" => item_url, "item_code" => item_code, "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
+      detail_hash = {"site_name" => "rakuten", "item_code" => item_code, "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
     end
     detail_hash
   end
@@ -47,7 +65,7 @@ class Rakuten < SeleniumHelper
         c.affiliate_id = '19c4dd28.d9c707f9.19c4dd29.c92b5ba3'
       end
       present_item_hash = {}
-      items = RakutenWebService::Ichiba::Item.search(:keyword => item_code)
+      items = RakutenWebService::Ichiba::Item.search(:itemCode => item_code)
       items.first(1).each do |item|
         #puts "#{item['itemName']}, #{item.price} yen"
         present_item_hash = {"site_name" => "rakuten", "item_url" => item_url, "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
@@ -93,12 +111,11 @@ end
 
 item_url = "https://item.rakuten.co.jp/adidas/ed7350/?iasid=07rpp_10096___ec-k3rbx0uy-8opr-2bc63514-6304-4705-894b-cdc415d8cad2"
 item_url = "https://item.rakuten.co.jp/sportszyuen/cq1962-l/"
-item_code = "620883278"
-item_code = "あ"
+item_code = Rakuten.new.parse_item_code(item_url)
 #pp Rakuten.new.check_price
 #pp Rakuten.new.get_affiliate_url(item_code)
 #pp Rakuten.new.login_cookie
-#pp Rakuten.new.parse_detail(item_url)
+pp Rakuten.new.parse_detail(item_code)
 #Rakuten.new.check_price(item_code)
 #Rakuten.new.check_price
 #affiliate_url = Rakuten.new.get_affiliate_url(item_code)

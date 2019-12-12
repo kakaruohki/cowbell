@@ -42,7 +42,7 @@ class Qoo10 < SeleniumHelper
     affiliate_url = doc2.css("#lnk_url").text
     @session.quit
     #return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price}
-    return {"site_name" => "Qoo10", "itme_url" => item_url, "item_name" => item_name, "item_code" => item_code, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
+    return {"site_name" => "Qoo10", "item_name" => item_name, "item_code" => item_code, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
   end
 
   def check_price
