@@ -49,9 +49,9 @@ class Qoo10 < SeleniumHelper
     #present_price = nil
     #selling_price = nil
     #user_id = nil
-    item_arr = Items.select("id, item_url, selling_price, user_id, affiliate_url, status").all
+    item_arr = Items.select("id, site_name, item_url, selling_price, user_id, affiliate_url, status").all
     item_arr.each do |item_hash|
-      next if item_hash["status"] == 1
+      next if item_hash["status"] == 1 || !(item_hash['site_name'] == 'Qoo10')
       #item_url = item_hash["item_url"]
       user_id = item_hash["user_id"]
       selling_price = item_hash["selling_price"]
@@ -179,7 +179,7 @@ item_code = "あ"
 #pp Qoo10.new.check_price
 #pp Qoo10.new.get_affiliate_url(item_code)
 #pp Qoo10.new.login_cookie
-#Qoo10.new.parse_detail(item_url)
+pp Qoo10.new.parse_detail(item_url)
 #Qoo10.new.check_price(item_code)
 #Qoo10.new.check_price
 #affiliate_url = Qoo10.new.get_affiliate_url(item_code)

@@ -15,7 +15,9 @@ class Rakuten < SeleniumHelper
     options.add_argument('--disable-gpu')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-setuid-sandbox')
-    options.add_argument('--proxy-server=http://1.0.135.245:8080')
+    #options.add_argument('--proxy-server=http://47.52.231.140:8080')
+    options.add_argument('--proxy-server=http://5.1.53.46:8080')
+    #options.add_argument('--proxy-server=http://119.15.89.106:8080')
     client = Selenium::WebDriver::Remote::Http::Default.new
     client.read_timeout = timeout_wait
     client.open_timeout = timeout_wait
@@ -26,9 +28,11 @@ class Rakuten < SeleniumHelper
   def parse_item_code(item_url)
     @session.navigate.to item_url
     switch_frame("#grp15_ias")
-    sleep 1
+    sleep 2
+    p html
     doc = Nokogiri::HTML.parse(html, nil, 'utf-8')
     item_code = doc.css("body > form > input[name=itemid]:nth-child(8)").attribute('value').text
+    p item_code
     return item_code
   end
 
@@ -53,9 +57,9 @@ class Rakuten < SeleniumHelper
     #present_price = nil
     #selling_price = nil
     #user_id = nil
-    item_arr = Items.select("id, site_name, item_code, selling_price, user_id, status").all
+    item_arr = Items.select("id, site_name, item_code, selling_price, affiliate_url, user_id, status").all
     item_arr.each do |item_hash|
-      next if item_hash["status"] == 1 && !(item_hash["site_name"] == "rakuten")
+      next if item_hash["status"] == 1 || !(item_hash["site_name"] == "rakuten")
       #item_url = item_hash["item_url"]
       item_code = item_hash["item_code"]
       user_id = item_hash["user_id"]
@@ -69,7 +73,7 @@ class Rakuten < SeleniumHelper
       items = RakutenWebService::Ichiba::Item.search(:itemCode => item_code)
       items.first(1).each do |item|
         #puts "#{item['itemName']}, #{item.price} yen"
-        present_item_hash = {"site_name" => "rakuten", "item_url" => item_url, "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
+        present_item_hash = {"site_name" => "rakuten", "item_name" => item['itemName'], "affiliate_url" => item['affiliateUrl'], "reference_price" => "", "normal_price" => "", "sale_price" => "", "selling_price" => item['itemPrice']}
       end
 
       present_price = present_item_hash["selling_price"]
@@ -116,7 +120,7 @@ item_url = "https://item.rakuten.co.jp/sportszyuen/cq1962-l/"
 #pp Rakuten.new.check_price
 #pp Rakuten.new.get_affiliate_url(item_code)
 #pp Rakuten.new.login_cookie
-#pp Rakuten.new.parse_detail(item_code)
+#pp Rakuten.new.parse_detail(item_url)
 #Rakuten.new.check_price(item_code)
 #Rakuten.new.check_price
 #affiliate_url = Rakuten.new.get_affiliate_url(item_code)

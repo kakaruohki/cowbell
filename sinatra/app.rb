@@ -89,6 +89,7 @@ post '/callback' do
 
   if item_url.include?("qoo10")
     begin
+      p item_url
       detail_hash = Qoo10.new.parse_detail(item_url)
       Items.create(site_name: detail_hash["site_name"], item_url: item_url, item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: detail_hash["affiliate_url"], item_code: detail_hash["item_code"], selling_price: detail_hash["selling_price"], user_id: user_id, status: 0)
       reply(user_id, "success")
@@ -97,6 +98,7 @@ post '/callback' do
     end
   elsif item_url.include?("rakuten")
     begin
+      p item_url
       detail_hash = Rakuten.new.parse_detail(item_url)
       Items.create(site_name: detail_hash["site_name"], item_url: item_url, item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: detail_hash["affiliate_url"], item_code: detail_hash["item_code"], selling_price: detail_hash["selling_price"], user_id: user_id, status: 0)
       reply(user_id, "success")
