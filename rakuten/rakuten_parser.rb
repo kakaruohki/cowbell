@@ -64,6 +64,7 @@ class Rakuten < SeleniumHelper
       item_code = item_hash["item_code"]
       user_id = item_hash["user_id"]
       selling_price = item_hash["selling_price"]
+      affiliate_url = item_hash["affiliate_url"]
 
       RakutenWebService.configure do |c|
         c.application_id = '1092763469644723753'
