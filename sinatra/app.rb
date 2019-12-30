@@ -1,15 +1,9 @@
-#require_relative '../common'
-#require_relative '../get_affiliate'
-#require_relative '../selenium_helper'
 require 'pry'
 require 'sinatra'
 require 'line/bot'
 require 'active_record'
 require 'logger'
 require 'json'
-
-#set :environment, :production
-#set :port, 80
 
 CHANNEL_ID = '1653480883'
 CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
@@ -22,13 +16,7 @@ helpers do
 end
 
 post '/' do
-  #text = params[:text]
-  #text1 = params[:text1]
    "Hello world!"
-  #{text: text}.to_json
-  #json = JSON.parse(request.body.read)
-  #body = request.body.read
-  #text + text1
 end
 
 def client
@@ -83,9 +71,6 @@ post '/callback' do
   item_url = params[:item_url]
   user_id = params[:user_id]
   reply_token = params[:reply_token]
-  #user_id = event['source']['userId']
-  #affiliate_url = Share.new.get_affiliate_url(item_code)
-  #detail_hash = Share.new.parse_detail(item_code)
 
   if item_url.include?("qoo10")
     begin

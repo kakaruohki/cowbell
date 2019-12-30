@@ -5,7 +5,6 @@ class Qoo10 < SeleniumHelper
 
   def move_to_detail_page(item_code)
     login_cookie
-    #@session.navigate.to "https://www.qoo10.jp/"
     send_value("input.ip_text", item_code)
     query_click("button.btn")
     query_click("a#btn_close") if css_exist?("a#btn_close")
@@ -25,53 +24,37 @@ class Qoo10 < SeleniumHelper
     doc = Nokogiri::HTML.parse(html, nil, charset)
     item_name = doc.css("h2#goods_name").text
     item_code = doc.css("div.code").text.match(/\w+/)[0]
-    #item_url = @session.current_url
     reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
     normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
     sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
     sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
-    #@session.quit
     selling_price = normal_price
     selling_price = sale_price unless sale_price.blank?
     query_click("#div_Default_Image > div.fctn_area > div.fctn > ul > li.bul_share > a")
-    #sleep_designated
     @session.switch_to.window(@session.window_handles.last)
     sleep 1.5
     charset = nil
     doc2 = Nokogiri::HTML.parse(html, nil, charset)
     affiliate_url = doc2.css("#lnk_url").text
     @session.quit
-    #return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price}
     return {"site_name" => "Qoo10", "item_name" => item_name, "item_code" => item_code, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
   end
 
   def check_price
-    #present_price = nil
-    #selling_price = nil
-    #user_id = nil
     item_arr = Items.select("id, site_name, item_url, selling_price, user_id, affiliate_url, status").all
     item_arr.each do |item_hash|
       next if item_hash["status"] == 1 || !(item_hash['site_name'] == 'Qoo10')
-      #item_url = item_hash["item_url"]
       user_id = item_hash["user_id"]
       selling_price = item_hash["selling_price"]
       affiliate_url = item_hash["affiliate_url"]
-      #@session.navigate.to item_url
-      #binding.pry
       begin
         @session.navigate.to affiliate_url
         sleep 1
         doc = Nokogiri::HTML.parse(html, nil, nil)
-        #item_name = doc.css("h2#goods_name").text
-        #item_code = doc.css("div.code").text.match(/\w+/)[0]
-        #item_url = @session.current_url
         reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
         normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
-        #sale_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|\W|,/,"")
-        #sale_price = doc.css("#sp_max_dc_price").text.gsub(/\(.+\)|\s|\W|,/,"")
         sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
         sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
-        #@session.quit
         sleep 1
         present_price = normal_price
         present_price = sale_price unless sale_price.blank?
@@ -81,14 +64,8 @@ class Qoo10 < SeleniumHelper
         next
       end
     end
-    #binding.pry
-    #post(user_id, affiliate_url) if present_price.to_i < selling_price
   end
 
-  #def alert(user_id)
-  #  #通知
-  #  Users
-  #end
   def post(user_id, affiliate_url)
     uri = URI.parse("https://api.line.me/v2/bot/message/push")
     request = Net::HTTP::Post.new(uri)
@@ -115,20 +92,6 @@ class Qoo10 < SeleniumHelper
     response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
       http.request(request)
     end
-  end
-
-  def record_existing?(class_name,item)
-    hash = {
-      item_name: item["item_name"],
-      #site_name: item["site_name"],
-      item_code: item["item_code"],
-      sale_price: item["sale_price"] #selling_price以外取得する？
-    }
-    hash.each do |item_key,item_value|
-        hash.delete(item_key) if item_value.nil?
-    end
-    same_record = class_name.find_by(hash)
-    same_record.present?
   end
 
   def login_cookie
@@ -167,7 +130,6 @@ class Qoo10 < SeleniumHelper
       @session.manage.add_cookie(cookie)
     end
     @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
-    #get_affiliate_url("620883278")
   end
 
 end
@@ -176,14 +138,7 @@ end
 item_url = "https://www.qoo10.jp/gmkt.inc/Mobile/Goods/goods.aspx?goodscode=602473646&pwrank=P&__ar=Y"
 item_code = "620883278"
 item_code = "あ"
-#pp Qoo10.new.check_price
-#pp Qoo10.new.get_affiliate_url(item_code)
 #pp Qoo10.new.login_cookie
 pp Qoo10.new.parse_detail(item_url)
-#Qoo10.new.check_price(item_code)
 #Qoo10.new.check_price
 #affiliate_url = Qoo10.new.get_affiliate_url(item_code)
-#p 1
-#detail_hash = Qoo10.new.parse_detail(item_code)
-#p 2
-#Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code)

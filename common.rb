@@ -9,6 +9,7 @@ require 'rakuten_web_service'
 
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDOUT)
+
 #ActiveRecord::Base.establish_connection(
 #  adapter: 'mysql2',
 #  host: 'localhost',
@@ -26,7 +27,4 @@ ActiveRecord::Base.establish_connection(
 )
 
 class Items < ActiveRecord::Base;
-end
-
-class Users < ActiveRecord::Base;
 end
