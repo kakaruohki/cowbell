@@ -1,133 +1,74 @@
-require_relative "common"
-require_relative "selenium_helper"
+require_relative "../common"
+require_relative "../selenium_helper"
 
-class Share < SeleniumHelper
-
-  def login
-    @session.navigate.to "https://www.qoo10.jp/gmkt.inc/Login/Login.aspx"
-    query_click("#dv_fb_go > a.btn_gg")
-    @session.switch_to.window(@session.window_handles.last)
-    send_value("#Email", "kakeru.ohki@gmail.com")
-    query_click("#next")
-    sleep 1
-    send_value("#Passwd", "19970922")
-    query_click("#signIn")
-    binding.pry
-    @session.switch_to.window(@session.window_handles.last)
-    switch_frame("#frame_popup")
-    binding.pry
-    send_value("#email", "kakeru.ohki@gmail.com")
-    query_click("#aspnetForm > div > div > div.btn_area > a:nth-child(1)")
-    #query_click("#dv_member_login > span.login_btn_ara > a")
-    sleep_designated
-  end
-
+class Qoo10 < SeleniumHelper
+  #商品番号から検索
   def move_to_detail_page(item_code)
     login_cookie
-    #@session.navigate.to "https://www.qoo10.jp/"
     send_value("input.ip_text", item_code)
     query_click("button.btn")
     query_click("a#btn_close") if css_exist?("a#btn_close")
     query_click("div.sbj > a[data-type=goods_url]")
   end
 
-  def get_affiliate_url(item_code)
+  #値段やアフィリエイトリンクなどを取得
+  def parse_detail(item_url)
+    if item_url.include?("Mobile") #スマホ版urlの場合
+      item_code = item_url.match(/goodscode=\d*/)[0].gsub(/\D/, "")
+    else
+      item_code = item_url.match(/\/\d{9}+/)[0].gsub(/\//, "")
+    end
     move_to_detail_page(item_code)
     @session.switch_to.window(@session.window_handles.last)
     query_click("a#btn_close") if css_exist?("a#btn_close")
     charset = nil
     doc = Nokogiri::HTML.parse(html, nil, charset)
     item_name = doc.css("h2#goods_name").text
-    #item_code = doc.css("div.code").text.match(/\w+/)[0]
-    #item_url = @session.current_url
-    reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
-    normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
-    sale_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|\W|,/,"")
-    @session.quit
-    selling_price = normal_price
-    selling_price = sale_price unless sale_price.blank?
-    #return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price}
-
-    query_click("#div_Default_Image > div.fctn_area > div.fctn > ul > li.bul_share > a")
-    #sleep_designated
-    @session.switch_to.window(@session.window_handles.last)
-    sleep 1
-    charset = nil
-    doc2 = Nokogiri::HTML.parse(html, nil, charset)
-    affiliate_url = doc2.css("#lnk_url").text
-    #p affiliate_url
-    @session.quit
-    return {"site_name" => "Qoo10", "item_name" => item_name, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price, "item_url" => item_url}
-  end
-
-  def parse_detail(item_code)
-    move_to_detail_page(item_code)
-    @session.switch_to.window(@session.window_handles.last)
-    query_click("a#btn_close") if css_exist?("a#btn_close")
-    charset = nil
-    doc = Nokogiri::HTML.parse(html, nil, charset)
-    item_name = doc.css("h2#goods_name").text
-    #item_code = doc.css("div.code").text.match(/\w+/)[0]
-    #item_url = @session.current_url
+    item_code = doc.css("div.code").text.match(/\w+/)[0]
     reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
     normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
     sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
     sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
-    #@session.quit
     selling_price = normal_price
     selling_price = sale_price unless sale_price.blank?
     query_click("#div_Default_Image > div.fctn_area > div.fctn > ul > li.bul_share > a")
-    #sleep_designated
     @session.switch_to.window(@session.window_handles.last)
     sleep 1.5
     charset = nil
     doc2 = Nokogiri::HTML.parse(html, nil, charset)
     affiliate_url = doc2.css("#lnk_url").text
     @session.quit
-    #return {"site_name" => "Qoo10", "item_name" => item_name, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price}
-    return {"site_name" => "Qoo10", "item_name" => item_name, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
+    return {"site_name" => "Qoo10", "item_name" => item_name, "item_code" => item_code, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
   end
 
+  #現在の値段を取得し、下がっていれば通知
   def check_price
-    #present_price = nil
-    #selling_price = nil
-    #user_id = nil
-    item_arr = Items.select("id, item_url, selling_price, user_id, affiliate_url, status").all
+    item_arr = Items.select("id, site_name, item_url, selling_price, user_id, affiliate_url, status").all
     item_arr.each do |item_hash|
-      next if item_hash["status"] == 1
-      #item_url = item_hash["item_url"]
+      next if item_hash["status"] == 1 || !(item_hash['site_name'] == 'Qoo10')
       user_id = item_hash["user_id"]
       selling_price = item_hash["selling_price"]
       affiliate_url = item_hash["affiliate_url"]
-      #@session.navigate.to item_url
-      #binding.pry
-      @session.navigate.to affiliate_url
-      sleep 1
-      doc = Nokogiri::HTML.parse(html, nil, nil)
-      #item_name = doc.css("h2#goods_name").text
-      #item_code = doc.css("div.code").text.match(/\w+/)[0]
-      item_url = @session.current_url
-      reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
-      normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
-      #sale_price = doc.css("dl.detailsArea.q_dcprice > dd").text.gsub(/\(.+\)|\s|\W|,/,"")
-      #sale_price = doc.css("#sp_max_dc_price").text.gsub(/\(.+\)|\s|\W|,/,"")
-      sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
-      sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
-      #@session.quit
-      sleep 1
-      present_price = normal_price
-      present_price = sale_price unless sale_price.blank?
-      Items.find_by(id: item_hash["id"]).update(status: 1) if present_price.to_i < selling_price
-      post(user_id, affiliate_url) if present_price.to_i < selling_price
+      begin
+        @session.navigate.to affiliate_url
+        sleep 1
+        doc = Nokogiri::HTML.parse(html, nil, nil)
+        reference_price = doc.css("div#ctl00_ctl00_MainContentHolder_MainContentHolderNoForm_retailPricePanel > dl > dd").text.gsub(/円|,/,"")
+        normal_price = doc.css("#dl_sell_price > dd > strong").text.gsub(/円|,/,"")
+        sale_price = doc.css("dl.detailsArea.q_dcprice > dd:nth-of-type(1)").text.gsub(/\(.+\)|\s|\W|,/,"")
+        sale_price = doc.css("ul.infoArea > li.infoData:nth-of-type(1) dl:nth-of-type(2)").text.gsub(/\(.+\)|\s|\W|,/,"") if sale_price.blank?
+        sleep 1
+        present_price = normal_price
+        present_price = sale_price unless sale_price.blank?
+        Items.find_by(id: item_hash["id"]).update(status: 1) if present_price.to_i < selling_price
+        post(user_id, affiliate_url) if present_price.to_i < selling_price
+      rescue
+        next
+      end
     end
-    #binding.pry
-    #post(user_id, affiliate_url) if present_price.to_i < selling_price
   end
 
-  #def alert(user_id)
-  #  #通知
-  #  Users
-  #end
+  #値下げ時のプッシュ通知
   def post(user_id, affiliate_url)
     uri = URI.parse("https://api.line.me/v2/bot/message/push")
     request = Net::HTTP::Post.new(uri)
@@ -156,20 +97,7 @@ class Share < SeleniumHelper
     end
   end
 
-  def record_existing?(class_name,item)
-    hash = {
-      item_name: item["item_name"],
-      #site_name: item["site_name"],
-      item_code: item["item_code"],
-      sale_price: item["sale_price"] #selling_price以外取得する？
-    }
-    hash.each do |item_key,item_value|
-        hash.delete(item_key) if item_value.nil?
-    end
-    same_record = class_name.find_by(hash)
-    same_record.present?
-  end
-
+  #クッキーを渡してログイン状態にする
   def login_cookie
     @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
     cookies = [{:name=>"landing-flowpath-info", :value=>"111%7c--%7c%7c--%7cT", :path=>"/", :domain=>".qoo10.jp", :expires=>nil, :secure=>false},
@@ -206,22 +134,12 @@ class Share < SeleniumHelper
       @session.manage.add_cookie(cookie)
     end
     @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
-    #get_affiliate_url("620883278")
   end
 
 end
 
-url = "https://www.qoo10.jp/item/%E8%B2%A9%E5%A3%B2%EF%BC%91%E4%BD%8D-%E5%BA%97-%E5%88%A9%E7%94%A8%E5%8F%AF%E8%83%BD%E3%81%AA%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3MICROSOFT-OFFICE-2019-PROFESSIONAL-1PC%E7%94%A8-%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E7%89%88/474767106?stcode=411#none"
-item_code = "620883278"
-item_code = "あ"
-#pp Share.new.check_price
-#pp Share.new.get_affiliate_url(item_code)
-#pp Share.new.login_cookie
-#Share.new.parse_detail(item_code)
-#Share.new.check_price(item_code)
-#Share.new.check_price
-#affiliate_url = Share.new.get_affiliate_url(item_code)
-#p 1
-#detail_hash = Share.new.parse_detail(item_code)
-#p 2
-#Items.create(site_name: detail_hash["site_name"], item_name: detail_hash["item_name"], reference_price: detail_hash["reference_price"], normal_price: detail_hash["normal_price"], sale_price: detail_hash["sale_price"], affiliate_url: affiliate_url, item_code: item_code)
+item_url = "https://www.qoo10.jp/gmkt.inc/Mobile/Goods/goods.aspx?goodscode=602473646&pwrank=P&__ar=Y"
+
+#pp Qoo10.new.login_cookie
+#pp Qoo10.new.parse_detail(item_url)
+#Qoo10.new.check_price
