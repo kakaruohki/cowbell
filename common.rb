@@ -10,6 +10,7 @@ require 'rakuten_web_service'
 ActiveRecord::Base.default_timezone = :local
 ActiveRecord::Base.logger = Logger.new(STDOUT)
 
+#ローカルサーバ
 #ActiveRecord::Base.establish_connection(
 #  adapter: 'mysql2',
 #  host: 'localhost',
@@ -18,6 +19,7 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 #  database: 'cowbell',
 #)
 
+#本番サーバ
 ActiveRecord::Base.establish_connection(
   adapter: 'mysql2',
   host: 'cowbell2.cxzk5qiw2yej.us-east-2.rds.amazonaws.com',

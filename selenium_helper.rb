@@ -48,6 +48,7 @@ class SeleniumHelper
     rescue_session.manage.timeouts.implicit_wait = 5
     rescue_session.find_elements(:css,css_selector).present?
   end
+  
   def send_value(css_selector,value)
     javascript_statement = %Q{document.querySelector("#{css_selector}").value = "#{value}"}
     @session.execute_script(javascript_statement)

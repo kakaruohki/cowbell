@@ -5,16 +5,13 @@ require 'active_record'
 require 'logger'
 require 'json'
 
-CHANNEL_ID = '1653480883'
-CHANNEL_SECRET = '9b1fb9aeb218f04bafd51392755bf584'
-CHANNEL_TOKEN = 'cvY4PoZB8WZL1YznqKwGQ/+/Bef7kUUlxMHxs9tkTjbFC9Fk++QhjMRWKSyApHQzNA3qS0wBFiEkvE8E8/AbFbwHDSIx3SEn6/rhoyIuuUC3OFvOb3ws4YtvYrbE86s/g0YwW+pytU3xukr7QvosuAdB04t89/1O/w1cDnyilFU='
-
 helpers do
   def html(text)
     Rack::Utils.escape_html(text)
   end
 end
 
+#正常か確認
 post '/' do
    "Hello world!"
 end
@@ -30,6 +27,7 @@ end
 require_relative '../qoo10/qoo10_parser'
 require_relative '../rakuten/rakuten_parser'
 
+#商品情報の際における通知
 def reply(user_id, status)
   uri = URI.parse("https://api.line.me/v2/bot/message/push")
   request = Net::HTTP::Post.new(uri)

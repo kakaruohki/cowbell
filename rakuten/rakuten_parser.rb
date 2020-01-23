@@ -14,6 +14,8 @@ class Rakuten < SeleniumHelper
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--proxy-server=http://5.1.53.46:8080')
+    #options.add_argument('--proxy-server=http://178.48.68.189:8080')
+
     client = Selenium::WebDriver::Remote::Http::Default.new
     client.read_timeout = timeout_wait
     client.open_timeout = timeout_wait
@@ -21,6 +23,7 @@ class Rakuten < SeleniumHelper
     @session.manage.timeouts.implicit_wait = timeout_wait
   end
 
+  #商品詳細ページから商品番号を取得
   def parse_item_code(item_url)
     @session.navigate.to item_url
     switch_frame("#grp15_ias")
@@ -32,10 +35,11 @@ class Rakuten < SeleniumHelper
     return item_code
   end
 
+  #楽天APIより商品詳細情報を取得
   def parse_detail(item_url)
     RakutenWebService.configure do |c|
-      c.application_id = '1092763469644723753'
-      c.affiliate_id = '19c4dd28.d9c707f9.19c4dd29.c92b5ba3'
+      c.application_id = ''
+      c.affiliate_id = ''
     end
 
     item_code = parse_item_code(item_url)
@@ -47,6 +51,7 @@ class Rakuten < SeleniumHelper
     detail_hash
   end
 
+  #現在の値段を取得し、下がっていれば通知
   def check_price
     item_arr = Items.select("id, site_name, item_code, selling_price, affiliate_url, user_id, status").all
     item_arr.each do |item_hash|
@@ -57,8 +62,8 @@ class Rakuten < SeleniumHelper
       affiliate_url = item_hash["affiliate_url"]
 
       RakutenWebService.configure do |c|
-        c.application_id = '1092763469644723753'
-        c.affiliate_id = '19c4dd28.d9c707f9.19c4dd29.c92b5ba3'
+        c.application_id = ''
+        c.affiliate_id = ''
       end
       present_item_hash = {}
       items = RakutenWebService::Ichiba::Item.search(:itemCode => item_code)
@@ -72,6 +77,7 @@ class Rakuten < SeleniumHelper
     end
   end
 
+  #値下げ時のプッシュ通知
   def post(user_id, affiliate_url)
     uri = URI.parse("https://api.line.me/v2/bot/message/push")
     request = Net::HTTP::Post.new(uri)
@@ -105,4 +111,4 @@ end
 item_url = "https://item.rakuten.co.jp/adidas/ed7350/?iasid=07rpp_10096___ec-k3rbx0uy-8opr-2bc63514-6304-4705-894b-cdc415d8cad2"
 item_url = "https://item.rakuten.co.jp/sportszyuen/cq1962-l/"
 #pp Rakuten.new.check_price
-#pp Rakuten.new.parse_detail(item_url)
+pp Rakuten.new.parse_detail(item_url)

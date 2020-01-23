@@ -2,7 +2,7 @@ require_relative "../common"
 require_relative "../selenium_helper"
 
 class Qoo10 < SeleniumHelper
-
+  #商品番号から検索
   def move_to_detail_page(item_code)
     login_cookie
     send_value("input.ip_text", item_code)
@@ -11,8 +11,9 @@ class Qoo10 < SeleniumHelper
     query_click("div.sbj > a[data-type=goods_url]")
   end
 
+  #値段やアフィリエイトリンクなどを取得
   def parse_detail(item_url)
-    if item_url.include?("Mobile")
+    if item_url.include?("Mobile") #スマホ版urlの場合
       item_code = item_url.match(/goodscode=\d*/)[0].gsub(/\D/, "")
     else
       item_code = item_url.match(/\/\d{9}+/)[0].gsub(/\//, "")
@@ -40,6 +41,7 @@ class Qoo10 < SeleniumHelper
     return {"site_name" => "Qoo10", "item_name" => item_name, "item_code" => item_code, "affiliate_url" => affiliate_url, "reference_price" => reference_price, "normal_price" => normal_price, "sale_price" => sale_price, "selling_price" => selling_price}
   end
 
+  #現在の値段を取得し、下がっていれば通知
   def check_price
     item_arr = Items.select("id, site_name, item_url, selling_price, user_id, affiliate_url, status").all
     item_arr.each do |item_hash|
@@ -66,6 +68,7 @@ class Qoo10 < SeleniumHelper
     end
   end
 
+  #値下げ時のプッシュ通知
   def post(user_id, affiliate_url)
     uri = URI.parse("https://api.line.me/v2/bot/message/push")
     request = Net::HTTP::Post.new(uri)
@@ -94,6 +97,7 @@ class Qoo10 < SeleniumHelper
     end
   end
 
+  #クッキーを渡してログイン状態にする
   def login_cookie
     @session.navigate.to "https://www.qoo10.jp/gmkt.inc/"
     cookies = [{:name=>"landing-flowpath-info", :value=>"111%7c--%7c%7c--%7cT", :path=>"/", :domain=>".qoo10.jp", :expires=>nil, :secure=>false},
@@ -134,11 +138,8 @@ class Qoo10 < SeleniumHelper
 
 end
 
-#item_url = "https://www.qoo10.jp/item/%E8%B2%A9%E5%A3%B2%EF%BC%91%E4%BD%8D-%E5%BA%97-%E5%88%A9%E7%94%A8%E5%8F%AF%E8%83%BD%E3%81%AA%E3%82%AF%E3%83%BC%E3%83%9D%E3%83%B3MICROSOFT-OFFICE-2019-PROFESSIONAL-1PC%E7%94%A8-%E6%97%A5%E6%9C%AC%E8%AA%9E%E3%83%80%E3%82%A6%E3%83%B3%E3%83%AD%E3%83%BC%E3%83%89%E7%89%88/474767106?stcode=411#none"
 item_url = "https://www.qoo10.jp/gmkt.inc/Mobile/Goods/goods.aspx?goodscode=602473646&pwrank=P&__ar=Y"
-item_code = "620883278"
-item_code = "あ"
+
 #pp Qoo10.new.login_cookie
-pp Qoo10.new.parse_detail(item_url)
+#pp Qoo10.new.parse_detail(item_url)
 #Qoo10.new.check_price
-#affiliate_url = Qoo10.new.get_affiliate_url(item_code)
